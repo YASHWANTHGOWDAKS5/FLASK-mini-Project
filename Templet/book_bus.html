@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>Book Bus</title>
+</head>
+<body>
+    <h2>Welcome {{passenger}}</h2>
+    <h3>Available Buses</h3>
+    <form method="POST">
+        <select name="bus_id">
+            {% for bus in buses %}
+                <option value="{{bus[0]}}">{{bus[1]}} - {{bus[2]}} to {{bus[3]}} | Seats: {{bus[4]}}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Book Ticket">
+    </form>
+    <a href="/logout">Logout</a>
+</body>
+</html>
