@@ -1,86 +1,105 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import mysql.connector
+from flask import render_template, redirect,flash, url_for, jsonify
+from flask_wtf import FlaskForm
+from pymongo.common import validate_string_or_none
+from sqlalchemy.orm import declarative_base, sessionmaker
+from wtforms import StringField, IntegerField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Length
+from sqlalchemy import create_engine, Column, Integer, String
+import re
+from werkzeug.security import generate_password_hash
+from flask import Flask
 
-app = Flask(__name__)
-app.secret_key = "secret123"
+app= Flask(__name__)
+app.config['SECRET_KEY'] = 'JaiBajarangi@25'
 
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="bus@1234",
-        database="busbooking"
-    )
+class Form(FlaskForm):
+    Name=StringField('Name',validators=[DataRequired(),Length(max=20,min=5)])
+    Age=IntegerField('Age',validators=[DataRequired()])
+    Gender=StringField('Gender',validators=[DataRequired('Male' or 'Female')])
+    email=StringField('Email',validators=[DataRequired("Enter you'r Correct Email"),])
+    Phone=IntegerField('Phone',validators=[DataRequired('Enter your Phone Number')])
+    Password=PasswordField('Password',validators=[DataRequired('Enter your Password')])
+    submit = SubmitField('Sign Up')
+engine= create_engine('mysql+pymysql://root:@localhost/LoginPage_Data')
+Base=declarative_base()
 
-@app.route("/")
-def home():
-    return render_template("home.html")
+class LoginForm(Base):
+    __tablename__='LoginForm_Data'
+    id=Column(Integer,primary_key=True,autoincrement=True)
+    Name = Column(String(20))
+    Age = Column(Integer)
+    Gender = Column(String(10))
+    email = Column(String(20))
+    Phone = Column(Integer)
+    Password = Column(String(20))
+    Hash_PassKey=Column(String(200))
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin():
-    if request.method == "POST":
-        user = request.form["username"]
-        password = request.form["password"]
-        if user == "yashu gowda" and password == "12345":
-            session["admin"] = True
-            return redirect(url_for("admin_dashboard"))
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session= Session()
+print("Connectin Established sir.")
+
+@app.route('/',methods=['GET','POST'])
+def signup():
+    form=Form()
+    if form.validate_on_submit():
+        name = form.Name.data
+        age = form.Age.data
+        gender = form.Gender.data
+        email = form.email.data
+        phone = form.Phone.data
+        password = form.Password.data
+        hash_PassKey = generate_password_hash(password)
+        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        add_obj=LoginForm(Name=name,Age=age,Gender=gender,email=email,Phone=phone,Password=password, Hash_PassKey=hash_PassKey)
+        if re.match(email_pattern,add_obj.email):
+            flash(f'Hello {add_obj.Name} you have registered properly by sankeths program and little help of YashuGowda')
+            session.add(add_obj)
+            session.commit()
+            flash('Your data saved successfully bro.')
+            return redirect(url_for("signup"))
         else:
-            return "Invalid Admin Credentials"
-    return render_template("admin_login.html")
+            flash('Invalid formate or empty field please check you buffur....')
+    return render_template('Signup.html',form=form)
 
-@app.route("/admin/dashboard", methods=["GET", "POST"])
-def admin_dashboard():
-    if "admin" not in session:
-        return redirect(url_for("admin"))
-    conn = get_db_connection()
-    cur = conn.cursor()
-    if request.method == "POST":
-        name = request.form["name"]
-        source = request.form["source"]
-        destination = request.form["destination"]
-        seats = 20
-        cur.execute("INSERT INTO buses (name, source, destination, seats) VALUES (%s,%s,%s,%s)",
-                    (name, source, destination, seats))
-        conn.commit()
-    cur.execute("SELECT * FROM buses")
-    buses = cur.fetchall()
-    conn.close()
-    return render_template("admin_dashboard.html", buses=buses)
 
-@app.route("/passenger", methods=["GET", "POST"])
-def passenger():
-    if request.method == "POST":
-        passenger = request.form["passenger"]
-        session["passenger"] = passenger
-        return redirect(url_for("book_bus"))
-    return render_template("passenger_login.html")
 
-@app.route("/passenger/book", methods=["GET", "POST"])
-def book_bus():
-    if "passenger" not in session:
-        return redirect(url_for("passenger"))
-    conn = get_db_connection()
-    cur = conn.cursor()
-    if request.method == "POST":
-        bus_id = request.form["bus_id"]
-        cur.execute("SELECT seats FROM buses WHERE id=%s", (bus_id,))
-        seats = cur.fetchone()[0]
-        if seats > 0:
-            cur.execute("INSERT INTO bookings (bus_id, passenger) VALUES (%s,%s)",
-                        (bus_id, session["passenger"]))
-            cur.execute("UPDATE buses SET seats=seats-1 WHERE id=%s", (bus_id,))
-            conn.commit()
+class admin(FlaskForm):
+    UserName = StringField('Name', validators=[DataRequired(), Length(max=20, min=5)])
+    pass_key = PasswordField('Password', validators=[DataRequired()])
+
+
+@app.route('/admin', methods=['GET','POST'])
+def admin_log():
+    adminform = admin()
+    if adminform.validate_on_submit():
+        username = adminform.UserName.data
+        pass_key = adminform.pass_key.data
+        if username in ['Yashwanth Gowda KS', 'Sanketh HN'] and pass_key == 'bajarangi@123':
+            data_all = session.query(LoginForm).all()
+            return render_template('admin_dashboard.html', data=data_all)
         else:
-            return "No seats available"
-    cur.execute("SELECT * FROM buses")
-    buses = cur.fetchall()
-    conn.close()
-    return render_template("book_bus.html", buses=buses, passenger=session["passenger"])
+            flash("Invalid Admin Credentials")
+    return render_template('admin.html', form=adminform)
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("home"))
 
-if __name__ == "__main__":
+@app.route('/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    user = session.query(LoginForm).filter_by(id=user_id).first()
+    if user:
+        session.delete(user)
+        session.commit()
+        flash("User deleted successfully ✅")
+    return redirect(url_for('admin_log'))
+
+
+
+
+@app.route('/data',methods=['GET','POST'])
+def Data():
+    data_all=session.query(LoginForm).all()
+    result = [{"id": s.id, "name": s.Name, "Age": s.Age,'Gender':s.Gender,"email":s.email,"phone":s.Phone,"password":s.Password} for s in data_all]
+    return render_template('data.html',data=result)
+
+if __name__=='__main__':
     app.run(debug=True)
