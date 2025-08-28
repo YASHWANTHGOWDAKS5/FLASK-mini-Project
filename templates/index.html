@@ -1,0 +1,41 @@
+<html lang="en">
+<head>
+    <title>Yashu's 2nd flask app</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<form method="POST">
+    {{ form.hidden_tag() }} <!--CRF Token hidden-->
+    <p>
+        {{ form.UserName.label }} :
+        {{ form.UserName(size=30) }}
+    </p>
+    <p>
+        {{ form.USN.label }} :
+        {{ form.USN(size=2) }}
+    </p>
+    <p>
+        <button>
+        {{ form.submit()}}
+            </button>
+    </p>
+    <!-- 🔹 Display flash messages -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for msg in messages %}
+        <li><strong>{{ msg }}</strong></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- Default info -->
+{% if not messages %}
+  <h5>Enter the username and USN (2 characters)...</h5>
+{% endif %}
+<a href="data">Enter into the data dashboard</a>
+{{ data }}
+</form>
+</body>
+</html>

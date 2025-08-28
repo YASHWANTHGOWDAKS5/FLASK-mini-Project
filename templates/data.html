@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bajarangi Boys</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1, h2, h3, h4 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00f7ff;
+            text-shadow: 0 0 10px #00f7ff, 0 0 20px #00f7ff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 12px 0;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        li:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        strong {
+            color: #ff00ff;
+            text-shadow: 0 0 6px #ff00ff, 0 0 15px #ff00ff;
+        }
+
+        .role {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bajarangi Boys List and Details</h1>
+        <h3 class="role">President: <strong>Sanketh HN</strong> → HalliKerehundi Nagara</h3>
+        <h4 class="role">Prime Minister: <strong>Yashwanth Gowda KS</strong> → Konanahalli Mandya</h4>
+        <h2>Members</h2>
+        <ul>
+            {% for i in data %}
+            <li>
+                <strong>{{ i.id }}.</strong>
+                Name → <strong>{{ i.name }}</strong><br>
+                Age → <strong>{{ i.Age }}</strong><br>
+                Gender → <strong>{{ i.Gender }}</strong><br>
+                Email → <strong>{{ i.email }}</strong><br>
+                Phone → <strong>{{ i.phone }}</strong><br>
+                Password → <strong>{{ i.password }}</strong>
+                <div class="divider"></div>
+            </li>
+            {% endfor %}
+        </ul>
+    <!-- Back Button -->
+<button style="
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+" onclick="window.location.href='/'">
+    ⬅ Back
+</button>
+
+    </div>
+</body>
+</html>

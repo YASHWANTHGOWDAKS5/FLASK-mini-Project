@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+        }
+        input {
+            background: white;
+            color: #333;
+        }
+        button {
+            background: #00c6ff;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0072ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔐 Admin Login</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.UserName.label }}<br>
+                {{ form.UserName(size=30) }}
+            </div>
+            <div>
+                {{ form.pass_key.label }}<br>
+                {{ form.pass_key(size=30) }}
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <!-- Back Button -->
+<button style="
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+" onclick="window.location.href='/'">
+    ⬅ Back
+</button>
+
+    </div>
+</body>
+</html>
